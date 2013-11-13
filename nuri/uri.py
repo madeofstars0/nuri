@@ -1,15 +1,16 @@
+import urllib
 
 class Uri:
     """
     A class for dealing with Uniform Resource Indicators defined by rfc3986
     """
-    scheme = None;
-    authority = None;
-    host = None;
-    path = None;
-    query_params = {};
-
     def __init__(self, uri=None):
+        self.scheme = None;
+        self.authority = None;
+        self.host = None;
+        self.path = None;
+        self.query_params = {};
+        
         if uri != None:
             self.parse(uri)
 
@@ -76,6 +77,26 @@ class Uri:
         if path_range != None and path_range[0] != path_range[1]:
             self.path = uri[path_range[0]:path_range[1]]
 
+        # Parse out the query
+        query_range = None
+        query_start_idx = uri.find('?')
+        if query_start_idx >= 0:
+            query_start_idx += 1 # account for the ?
+            if uri.find('#', query_start_idx) >= 0:
+                query_range = (query_start_idx, uri.find('#', query_start_idx),)
+            else:
+                query_range = (query_start_idx, len(uri),)
+
+        if query_range != None:
+            self.query_string = uri[query_range[0]:query_range[1]]
+            # Ok, now we need to parse it
+            for pair in self.query_string.split('&'):
+                values = pair.split('=')
+                if len(values) == 1:
+                    self.query_params[values[0]] = True
+                elif len(values) == 2:
+                    # TODO: uri decode values[1]
+                    self.query_params[values[0]] = urllib.unquote(values[1])
 
 
     def __str__(self):
@@ -98,7 +119,5 @@ class Uri:
                 uri_components.append('&')
             uri_components.append(str(k))
             uri_components.append('=')
-            uri_components.append(str(v)) # TODO: URL Encode
+            uri_components.append(urllib.quote(str(v))) # TODO: URL Encode
         return ''.join(uri_components)
-
-        

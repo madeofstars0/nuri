@@ -55,6 +55,12 @@ class EasyFileUriParseTest(unittest.TestCase):
     def testUriQueryParams(self):
         self.assertEqual({}, self.myuri.query_params)
 
+class UriQueryParameterTest(unittest.TestCase):
+    def testSingleQueryParam(self):
+        myuri = Uri("bobo:/etc/files/a.conf?line=19")
+        self.assertIn("line", myuri.query_params)
+        self.assertEqual("19", myuri.query_params["line"])
+
 class TrixyUriParseTest(unittest.TestCase):
     def testEmptyUri(self):
         myuri = Uri("")
