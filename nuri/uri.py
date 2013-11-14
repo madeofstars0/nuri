@@ -5,11 +5,12 @@ class Uri:
     A class for dealing with Uniform Resource Indicators defined by rfc3986
     """
     def __init__(self, uri=None):
-        self.scheme = None;
-        self.authority = None;
-        self.host = None;
-        self.path = None;
-        self.query_params = {};
+        self.scheme = None
+        self.authority = None
+        self.host = None
+        self.path = None
+        self.path_segments = None
+        self.query_params = {}
         
         if uri != None:
             self.parse(uri)
@@ -77,6 +78,13 @@ class Uri:
         if path_range != None and path_range[0] != path_range[1]:
             self.path = uri[path_range[0]:path_range[1]]
 
+            if self.path == '/':
+                self.path_segments = []
+            elif self.path[:1] == '/':
+                self.path_segments = self.path[1:].split('/')
+            else:
+                self.path_segments = self.path.split('/')
+
         # Parse out the query
         query_range = None
         query_start_idx = uri.find('?')
@@ -107,8 +115,11 @@ class Uri:
         if self.authority != None:
             uri_components.append('//')
             uri_components.append(self.authority)
-        if self.path != None:
-            uri_components.append(self.path)
+        if self.path_segments != None:
+            if self.authority != None:
+                # Add a slash that is supposed to be the start of the path when we have an authority
+                uri_components.append('/')
+            uri_components.append('/'.join(self.path_segments))
 
         query_indicated = False
         for k,v in self.query_params.iteritems():

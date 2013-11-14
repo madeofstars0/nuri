@@ -12,6 +12,7 @@ if __name__ == '__main__':
     print "scheme: %s" % myuri.scheme
     print "authority: %s" % myuri.authority
     print "path: %s" % myuri.path
+    print "segments: %s" % str(myuri.path_segments)
     print "query: %s" % str(myuri.query_params)
     print "string: %s" % str(myuri)
     print ""

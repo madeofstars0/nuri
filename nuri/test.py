@@ -61,6 +61,47 @@ class UriQueryParameterTest(unittest.TestCase):
         self.assertIn("line", myuri.query_params)
         self.assertEqual("19", myuri.query_params["line"])
 
+class UriPathSegmentTest(unittest.TestCase):
+    def testHttpDomainOnly(self):
+        url = "http://example.com"
+        myuri = Uri(url)
+        self.assertIsNone(myuri.path_segments)
+        self.assertEqual(str(myuri), url)
+
+    def testHttpDomainOnlyWithQuery(self):
+        url = "http://example.com?query=bob"
+        myuri = Uri(url)
+        self.assertIsNone(myuri.path_segments)
+        self.assertEqual(str(myuri), url)
+
+    def testHttpDomainRootPath(self):
+        url = "http://example.com/"
+        myuri = Uri(url)
+        self.assertEqual(myuri.path_segments, [])
+        self.assertEqual(str(myuri), url)
+
+    def testHttpPath(self):
+        url = "http://example.com/first/second/fifth/third/fourth?query=true"
+        myuri = Uri(url)
+        self.assertEqual(myuri.path_segments, ['first','second','fifth','third','fourth'])
+        self.assertEqual(str(myuri), url)
+
+    def testUrnPath(self):
+        urn = "urn:usbn-13:1234567890123"
+        myuri = Uri(urn)
+        self.assertEqual(myuri.path_segments, ['usbn-13:1234567890123'])
+        self.assertEqual(str(myuri), urn)
+
+    def testHttpPathModification(self):
+        myuri = Uri("http://example.com")
+        myuri.path_segments = [] # there is no path in this url, so we need to init the array :(
+        myuri.path_segments.append("test.html")
+        self.assertEqual(str(myuri), "http://example.com/test.html")
+        myuri.path_segments.insert(0, "directory")
+        self.assertEqual(str(myuri), "http://example.com/directory/test.html")
+        myuri.scheme = 'https'
+        self.assertEqual(str(myuri), "https://example.com/directory/test.html")
+
 class TrixyUriParseTest(unittest.TestCase):
     def testEmptyUri(self):
         myuri = Uri("")
